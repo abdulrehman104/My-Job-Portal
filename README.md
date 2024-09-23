@@ -1,4 +1,3 @@
-Copy code
 # Job Portal - Full Stack Web Application
 
 This job portal is a modern and user-friendly platform designed for both job seekers and employers. Job seekers can search, filter, and apply for jobs, while employers can post and manage job listings efficiently. 
