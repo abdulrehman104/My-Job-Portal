@@ -1,0 +1,111 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Job {
+  id                String        @id @default(uuid())  
+  userId            String
+  title             String
+  description       String?
+  short_description String?
+  imageUrl          String?
+  isPublished       Boolean       @default(false)
+  tags              String[]
+  savedUsers        String[]
+  shiftTiming       String?
+  hourlyRate        String?
+  yearsOfExperience String?
+  workMode          String?
+  categoryId        String?
+  category          Category?     @relation(fields: [categoryId], references: [id])
+  companyId         String?
+  company           Company?      @relation(fields: [companyId], references: [id])
+  attachments       Attachments[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @default(now())
+
+  @@index([categoryId])
+  @@index([companyId])
+}
+
+// One to many relation ship with job, (One category have multiple job but the job has only one category)
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  job       Job[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+// One to many relation ship with job, (One company have multiple job but the job has only one company)
+model Company {
+  id           String   @id @default(uuid())
+  userId       String
+  name         String   @unique
+  description  String?
+  logo         String?
+  converImage  String?
+  email        String?
+  website      String?
+  linkedIn     String?
+  adress_line1 String?
+  adress_line2 String?
+  city         String?
+  state        String?
+  zipcode      String?
+  followers    String[]
+  overview     String?
+  whyJoinUs    String?
+  jobs         Job[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+}
+
+// One to many relation ship with job, (One job have multiple attachments but the attachments has only one job)
+model Attachments {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  jobId     String?
+  Job       Job?     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model UserProfile {
+  userId           String       @id
+  fullName         String?
+  email            String?      @unique
+  contact          String?
+  appliedJobs      AppliedJob[]
+  resumes          Resumes[]
+  ActiveResumeById String?
+}
+
+model AppliedJob {
+  id        String   @id @default(uuid())
+  jobId     String
+  appliedAt DateTime @default(now())
+
+  userProfileId String?
+  UserProfile   UserProfile? @relation(fields: [userProfileId], references: [userId])
+}
+
+model Resumes {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  userProfileId String?
+  UserProfile   UserProfile? @relation(fields: [userProfileId], references: [userId], onDelete: Cascade)
+
+  @@index([userProfileId], name: "idx_userProfileId")
+}
